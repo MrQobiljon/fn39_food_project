@@ -6,10 +6,10 @@ from .views import (CategoryAPIView, CategoryRetrieveAPIView,
 
 urlpatterns = [
     path('categories/', CategoryAPIView.as_view()),
-    path('categories/<int:pk>/', CategoryRetrieveAPIView.as_view()),
+    path('categories/<int:pk>/', CategoryRetrieveAPIView.as_view(), name='category-detail'),
 
     path('foods/', FoodAPIView.as_view()),
-    path('foods/<int:pk>/', FoodRetrieveAPIView.as_view()),
+    path('foods/<int:pk>/', FoodRetrieveAPIView.as_view(), name='food-detail'),
 
     path('foods/<int:food_id>/comments/', CommentAPIView.as_view()),
     path('foods/<int:food_id>/comments/<int:comment_id>/', CommentRetrieveAPIView.as_view()),

@@ -11,7 +11,7 @@ class CategoryAPIView(ListCreateAPIView):
     serializer_class = CategorySerializer
 
 
-class CategoryRetrieveAPIView(ListCreateAPIView):
+class CategoryRetrieveAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
