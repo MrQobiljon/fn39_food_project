@@ -1,7 +1,7 @@
 from django.db.models import Model
 from rest_framework import serializers
 
-from .models import Food, Category
+from .models import Food, Category, Comment
 
 
 class CategorySerializer(serializers.Serializer):
@@ -34,3 +34,9 @@ class FoodSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['id', 'text', 'user']
+        read_only_fields = ['user']

@@ -1,13 +1,15 @@
+from django.db.models import Model
 from rest_framework.generics import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from unicodedata import category
+from rest_framework import permissions
 
-from .models import Category, Food
-from .serializers import CategorySerializer, FoodSerializer
+from .models import Category, Food, Comment
+from .serializers import CategorySerializer, FoodSerializer, CommentSerializer
+from .permissions import MyIsAuthenticatedOrReadOnly, CommentAuthorPermission
 
 
 class CategoryAPIView(APIView):
@@ -54,6 +56,8 @@ class CategoryAPIView(APIView):
 class FoodAPIView(ListCreateAPIView):
     queryset = Food.objects.all()
     serializer_class = FoodSerializer
+    permission_classes = [MyIsAuthenticatedOrReadOnly]
+
 
     def get_queryset(self):
         category_id = self.kwargs.get("category_id")
@@ -72,3 +76,32 @@ class FoodRetrieveAPIView(RetrieveUpdateDestroyAPIView):
     serializer_class = FoodSerializer
     lookup_field = 'pk'
     lookup_url_kwarg = 'food_id'
+    permission_classes = [MyIsAuthenticatedOrReadOnly]
+
+    def get_object(self):
+        return super().get_object()
+
+
+class CommentAPIView(ListCreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [MyIsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        return Comment.objects.filter(food_id=self.kwargs.get('food_id'))
+
+    def perform_create(self, serializer):
+        food = get_object_or_404(Food, pk=self.kwargs.get('food_id'))
+        serializer.validated_data['user'] = self.request.user
+        serializer.validated_data['food'] = food
+        serializer.save()
+        return serializer
+
+
+class CommentRetrieveAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [
+        MyIsAuthenticatedOrReadOnly,
+        CommentAuthorPermission
+    ]
+    lookup_url_kwarg = 'comment_id'
