@@ -1,16 +1,23 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import SimpleRouter, DefaultRouter
 
-from .views import (CategoryAPIView, CategoryRetrieveAPIView,
-                    FoodAPIView, FoodRetrieveAPIView,
-                    CommentAPIView, CommentRetrieveAPIView)
+from .views import (CategoryAPIViewSet, FoodApiViewSet, CommentAPIView)
+
+router = DefaultRouter()
+router.register('categories', CategoryAPIViewSet, basename='category')
+router.register('foods', FoodApiViewSet)
+
 
 urlpatterns = [
-    path('categories/', CategoryAPIView.as_view()),
-    path('categories/<int:pk>/', CategoryRetrieveAPIView.as_view(), name='category-detail'),
+    path(
+        'foods/<int:food_id>/comments/',
+        CommentAPIView.as_view({'get': 'list', 'post': 'create'}),
+        name='comment-list'),
 
-    path('foods/', FoodAPIView.as_view()),
-    path('foods/<int:pk>/', FoodRetrieveAPIView.as_view(), name='food-detail'),
+    path(
+        'foods/<int:food_id>/comments/<int:comment_id>/',
+        CommentAPIView.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}),
+        name='comment-detail'),
 
-    path('foods/<int:food_id>/comments/', CommentAPIView.as_view()),
-    path('foods/<int:food_id>/comments/<int:comment_id>/', CommentRetrieveAPIView.as_view()),
+    path('', include(router.urls)),
 ]
